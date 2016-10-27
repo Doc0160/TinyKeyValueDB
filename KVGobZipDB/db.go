@@ -53,6 +53,16 @@ func Open(filename string) DB {
 	return db
 }
 
+func (db*DB) Select(fn func(string)bool) []string {
+    var s []string
+    for k, _ := db.data.keys {
+        if fn(k) {
+            s = append(s, k)
+        }
+    }
+    return s
+}
+
 func (db*DB) Save() {
 	var buf bytes.Buffer
     db.Lock()
