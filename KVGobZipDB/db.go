@@ -55,7 +55,7 @@ func Open(filename string) DB {
 
 func (db*DB) Select(fn func(string)bool) []string {
     var s []string
-    for _, k := db.data.Keys {
+    for _, k := range db.data.Keys {
         if fn(k) {
             s = append(s, k)
         }
