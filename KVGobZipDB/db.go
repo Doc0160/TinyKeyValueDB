@@ -54,16 +54,16 @@ func Open(filename string) DB {
 }
 
 func (db*DB) Select(fn func(string, interface{})bool) []string {
-    //db.Lock()
-    //defer db.Unlock()
     var s []string
     var v interface{}
+    db.Lock()
     for i, k := range db.data.Keys {
         gob.NewDecoder(bytes.NewReader([]byte(db.data.Values[i]))).Decode(v)
         if fn(k, v) {
             s = append(s, k)
         }
     }
+    db.Unlock()
     return s
 }
 
@@ -82,12 +82,11 @@ func (db*DB) Save() {
 }
 
 func (db*DB) Put(key string, value interface{}) error {
-	db.Lock()
-	defer db.Unlock()
 	var buf bytes.Buffer
 	if err := gob.NewEncoder(&buf).Encode(value); err != nil {
 		return nil
 	}
+    db.Lock()
 	i := index(db.data.Keys, key)
 	if i == -1 {
 		db.data.Keys = append(db.data.Keys, key)
@@ -95,18 +94,20 @@ func (db*DB) Put(key string, value interface{}) error {
 	}else{
 		db.data.Values[i] = string(buf.Bytes())
 	}
+    db.Unlock()
 	return nil
 }
 
 func (db*DB) Get(key string, value interface{}) error {
-	db.Lock()
-	defer db.Unlock()
+    var err error = ErrNotFound
+    db.Lock()
 	i := index(db.data.Keys, key)
 	if i != -1 {
 		d := gob.NewDecoder(bytes.NewReader([]byte(db.data.Values[i])))
-		return d.Decode(value)
+        err = d.Decode(value)
 	}
-	return ErrNotFound
+    db.Unlock()
+	return err
 }
 
 func (db*DB) Delete(key string) error {
@@ -122,6 +123,9 @@ func (db*DB) Delete(key string) error {
 }
 
 func delete(a []string, i int) []string {
+    copy(a[i:], a[i+1:])
+    a[len(a)-1] = ""
+    a = a[:len(a)-1]
 	a = append(a[:i], a[i+1:]...)
 	return a
 }
