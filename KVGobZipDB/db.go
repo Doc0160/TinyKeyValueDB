@@ -96,16 +96,6 @@ func (db*DB) Put(key string, value interface{}) error {
 	return nil
 }
 
-func (db*DB) Select(fn func(string)bool) []string {
-    var s []string
-    for k, _ := db.data.keys {
-        if fn(k) {
-            s = append(s, k)
-        }
-    }
-    return s
-}
-
 
 func (db*DB) Get(key string, value interface{}) error {
 	db.Lock()
