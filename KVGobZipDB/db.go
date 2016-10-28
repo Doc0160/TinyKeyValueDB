@@ -53,12 +53,12 @@ func Open(filename string) DB {
 	return db
 }
 
-func (db*DB) Select(fn func(string)bool) []string {
+func (db*DB) Select(fn func(string, interface{})bool) []string {
     db.Lock()
     defer db.Unlock()
     var s []string
-    for _, k := range db.data.Keys {
-        if fn(k) {
+    for i, k := range db.data.Keys {
+        if fn(k, db.data.Values[i]) {
             s = append(s, k)
         }
     }

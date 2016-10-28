@@ -17,7 +17,7 @@ type TinyKeyValueDB interface{
     Save()
     Get(key string, value interface{}) error
     Put(key string, value interface{}) error
-    Select(fn func(string)bool)[]string
+    Select(fn func(string, interface{})bool)[]string
     Delete(key string) error
 }
 
