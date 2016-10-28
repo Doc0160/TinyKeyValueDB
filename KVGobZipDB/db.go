@@ -53,17 +53,12 @@ func Open(filename string) DB {
 	return db
 }
 
-func (db*DB) Select(fn func(string, interface{})bool, ttype interface{}) []string {
-    var s []string
-    db.Lock()
-    for i, k := range db.data.Keys {
-        gob.NewDecoder(bytes.NewReader([]byte(db.data.Values[i]))).Decode(&ttype)
-        if fn(k, ttype) {
-            s = append(s, k)
-        }
-    }
-    db.Unlock()
-    return s
+func (db*DB)Key(i int, s *string){
+    *s =  db.data.Keys[i]
+}
+
+func (db*DB)Value(i int, r interface{}){
+     r = db.data.Values[i]
 }
 
 func (db*DB) Save() {
