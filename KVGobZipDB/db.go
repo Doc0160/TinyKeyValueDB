@@ -54,8 +54,8 @@ func Open(filename string) DB {
 }
 
 func (db*DB) Select(fn func(string, interface{})bool) []string {
-    db.Lock()
-    defer db.Unlock()
+    //db.Lock()
+    //defer db.Unlock()
     var s []string
     var v interface{}
     for i, k := range db.data.Keys {
