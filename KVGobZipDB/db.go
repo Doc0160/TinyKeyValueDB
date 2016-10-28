@@ -57,8 +57,10 @@ func (db*DB) Select(fn func(string, interface{})bool) []string {
     db.Lock()
     defer db.Unlock()
     var s []string
+    var v interface{}
     for i, k := range db.data.Keys {
-        if fn(k, db.data.Values[i]) {
+        gob.NewDecoder(bytes.NewReader([]byte(db.data.Values[i]))).Decode(&v)
+        if fn(k, v) {
             s = append(s, k)
         }
     }
@@ -95,7 +97,6 @@ func (db*DB) Put(key string, value interface{}) error {
 	}
 	return nil
 }
-
 
 func (db*DB) Get(key string, value interface{}) error {
 	db.Lock()
