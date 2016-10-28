@@ -59,7 +59,7 @@ func (db*DB) Select(fn func(string, interface{})bool) []string {
     var s []string
     var v interface{}
     for i, k := range db.data.Keys {
-        gob.NewDecoder(bytes.NewReader([]byte(db.data.Values[i]))).Decode(&v)
+        gob.NewDecoder(bytes.NewReader([]byte(db.data.Values[i]))).Decode(v)
         if fn(k, v) {
             s = append(s, k)
         }
