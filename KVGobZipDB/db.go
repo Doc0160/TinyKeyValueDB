@@ -48,7 +48,6 @@ func Open(filename string) DB {
         }
 	} else {
 		fmt.Println(err)
-		db.Save()
 	}
 	return db
 }
