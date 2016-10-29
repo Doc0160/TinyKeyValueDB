@@ -31,23 +31,24 @@ type DB struct{
 func Open(filename string) DB {
 	db := DB{}
 	db.filename = filename
+    db.Lock()
 	b, err := ioutil.ReadFile(filename)
 	if err == nil {
         br := bytes.NewReader(b)
         r, err := gzip.NewReader(br)
-        defer r.Close()
         if err == nil {
-            db.Lock()
             err := gob.NewDecoder(r).Decode(&db.data)
-            db.Unlock()
+            r.Close()
             if err != nil {
                 fmt.Println(err)
             }
+            db.Unlock()
         }else{
             fmt.Println(err)
         }
 	} else {
 		fmt.Println(err)
+        db.Unlock()
 		db.Save()
 	}
 	return db
