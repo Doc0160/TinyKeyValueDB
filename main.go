@@ -18,6 +18,9 @@ type TinyKeyValueDB interface{
     Get(key string, value interface{}) error
     Put(key string, value interface{}) error
     Delete(key string) error
+
+    Key(i int, s *string)
+    Value(i int, r interface{})
 }
 
 type DBData struct{

@@ -93,12 +93,11 @@ func (db*DB) Put(key string, value interface{}) error {
 }
 
 func (db*DB) Get(key string, value interface{}) error {
-    var err error = ErrNotFound
+    var err = ErrNotFound
     db.Lock()
 	i := index(db.data.Keys, key)
 	if i != -1 {
-		d := gob.NewDecoder(bytes.NewReader([]byte(db.data.Values[i])))
-        err = d.Decode(value)
+		err = gob.NewDecoder(bytes.NewReader([]byte(db.data.Values[i]))).Decode(value)
 	}
     db.Unlock()
 	return err
@@ -106,13 +105,13 @@ func (db*DB) Get(key string, value interface{}) error {
 
 func (db*DB) Delete(key string) error {
 	db.Lock()
-	defer db.Unlock()
 	i := index(db.data.Keys, key)
 	if i == -1 {
 		return ErrNotFound
 	}
 	db.data.Keys = delete(db.data.Keys, i)
 	db.data.Values = delete(db.data.Values, i)
+    db.Unlock()
 	return nil
 }
 
