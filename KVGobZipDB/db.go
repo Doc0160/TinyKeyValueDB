@@ -30,8 +30,8 @@ type DB struct{
 
 func Open(filename string) DB {
 	db := DB{}
-    db.Lock()
-    defer db.Unlock()
+    //db.Lock()
+    //defer db.Unlock()
 	db.filename = filename
 	b, err := ioutil.ReadFile(filename)
 	if err == nil {
@@ -53,20 +53,20 @@ func Open(filename string) DB {
 }
 
 func (db*DB)Key(i int, s *string){
-    db.Lock()
-    defer db.Unlock()
+    //db.Lock()
     *s =  db.data.Keys[i]
+    //db.Unlock()
 }
 
 func (db*DB)Value(i int, r interface{}){
-    db.Lock()
-    defer db.Unlock()
+    //db.Lock()
     r = db.data.Values[i]
+    //db.Unlock()
 }
 
 func (db*DB) Save() {
-    db.Lock()
-    defer db.Unlock()
+    //db.Lock()
+    //defer db.Unlock()
 	var buf bytes.Buffer
     
 	if err := gob.NewEncoder(&buf).Encode(db.data); err != nil {
@@ -81,8 +81,8 @@ func (db*DB) Save() {
 }
 
 func (db*DB) Put(key string, value interface{}) error {
-    db.Lock()
-    defer db.Unlock()
+    //db.Lock()
+    //defer db.Unlock()
 	var buf bytes.Buffer
 	if err := gob.NewEncoder(&buf).Encode(value); err != nil {
 		return nil
@@ -100,8 +100,8 @@ func (db*DB) Put(key string, value interface{}) error {
 }
 
 func (db*DB) Get(key string, value interface{}) error {
-    db.Lock()
-    defer db.Unlock()
+    //db.Lock()
+    //defer db.Unlock()
     var err = ErrNotFound
     
 	i := index(db.data.Keys, key)
@@ -113,8 +113,8 @@ func (db*DB) Get(key string, value interface{}) error {
 }
 
 func (db*DB) Delete(key string) error {
-    db.Lock()
-    defer db.Unlock()
+    //db.Lock()
+    //defer db.Unlock()
 	
 	i := index(db.data.Keys, key)
 	if i == -1 {
