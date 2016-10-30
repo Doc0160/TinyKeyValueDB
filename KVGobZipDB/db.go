@@ -13,7 +13,7 @@ import(
 
 var (
 	ErrNotFound = errors.New("db: key not found")
-	//ErrBadValue = errors.New("db: bad value")
+	ErrBadValue = errors.New("db: bad value")
     //ErrAlreadyExist = errors.New("db: key already exist")
 )
 
@@ -29,10 +29,13 @@ type DB struct{
 }
 
 func Open(filename string) DB {
-	db := DB{}
+	db := DB{
+        DBData{},
+        sync.Mutex{},
+        filename,
+    }
     //db.Lock()
     //defer db.Unlock()
-	db.filename = filename
 	b, err := ioutil.ReadFile(filename)
 	if err == nil {
         br := bytes.NewReader(b)
@@ -52,7 +55,7 @@ func Open(filename string) DB {
 	return db
 }
 
-func (db*DB)Key(i int, s *string){
+/*func (db*DB)Key(i int, s *string){
     //db.Lock()
     *s =  db.data.Keys[i]
     //db.Unlock()
@@ -62,16 +65,16 @@ func (db*DB)Value(i int, r interface{}){
     //db.Lock()
     r = db.data.Values[i]
     //db.Unlock()
-}
+}*/
 
 func (db*DB) Save() {
-    //db.Lock()
-    //defer db.Unlock()
 	var buf bytes.Buffer
     
+    db.Lock()
 	if err := gob.NewEncoder(&buf).Encode(db.data); err != nil {
 		fmt.Println(err)
 	}
+    db.Unlock()
     
 	var b bytes.Buffer
     w, _ := gzip.NewWriterLevel(&b, gzip.BestCompression)
@@ -81,13 +84,12 @@ func (db*DB) Save() {
 }
 
 func (db*DB) Put(key string, value interface{}) error {
-    //db.Lock()
-    //defer db.Unlock()
 	var buf bytes.Buffer
 	if err := gob.NewEncoder(&buf).Encode(value); err != nil {
 		return nil
 	}
     
+    db.Lock()
 	i := index(db.data.Keys, key)
 	if i == -1 {
 		db.data.Keys = append(db.data.Keys, key)
@@ -95,34 +97,34 @@ func (db*DB) Put(key string, value interface{}) error {
 	}else{
 		db.data.Values[i] = string(buf.Bytes())
 	}
+    db.Unlock()
     
 	return nil
 }
 
 func (db*DB) Get(key string, value interface{}) error {
-    //db.Lock()
-    //defer db.Unlock()
     var err = ErrNotFound
     
+    db.Lock()
 	i := index(db.data.Keys, key)
 	if i != -1 {
 		err = gob.NewDecoder(bytes.NewReader([]byte(db.data.Values[i]))).Decode(value)
 	}
+    db.Unlock()
     
 	return err
 }
 
 func (db*DB) Delete(key string) error {
-    //db.Lock()
-    //defer db.Unlock()
-	
+	db.Lock()
 	i := index(db.data.Keys, key)
 	if i == -1 {
+        db.Unlock()
 		return ErrNotFound
 	}
 	db.data.Keys = delete(db.data.Keys, i)
 	db.data.Values = delete(db.data.Values, i)
-    
+    db.Unlock()
 	return nil
 }
 
